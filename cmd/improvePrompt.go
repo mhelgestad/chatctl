@@ -11,45 +11,26 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var agentModeAsk bool
-
-// askCmd represents the ask command
-var askCmd = &cobra.Command{
-	Use:   "ask [question]",
-	Short: "Ask your question",
+// improvePromptCmd represents the improvePrompt command
+var improvePromptCmd = &cobra.Command{
+	Use:   "improvePrompt",
+	Short: "helps improve a prompt",
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		q := args[0]
+		p := args[0]
 
-		if agentModeAsk {
-			agentResponse, err := common.CallAgent(q)
-			if err != nil {
-				return fmt.Errorf("agent error: %s", err)
-			}
-			fmt.Println("Topic\n-------")
-			fmt.Println(agentResponse.Topic)
-			fmt.Println("\nSummary\n-------")
-			fmt.Println(agentResponse.Summary)
-			fmt.Println("\nSources\n-------")
-			for _, source := range agentResponse.Sources {
-				fmt.Println("-", source)
-			}
-			fmt.Println("\nTools Used\n-------")
-			for _, tool := range agentResponse.ToolsUsed {
-				fmt.Println("-", tool)
-			}
-			return nil
-		}
+		fmt.Println("Original Prompt\n----------------")
+		fmt.Println(p)
 
 		client := common.GetOpenAIClient()
 		chatMessages := []openai.ChatCompletionMessage{
 			{
 				Role:    openai.ChatMessageRoleSystem,
-				Content: common.GetSystemPrompt(),
+				Content: "Im an expert prompt engineer. Improve the following prompt to be more effective and precise, and only provide the prompt in the output:",
 			},
 			{
 				Role:    openai.ChatMessageRoleUser,
-				Content: q,
+				Content: p,
 			},
 		}
 
@@ -64,22 +45,22 @@ var askCmd = &cobra.Command{
 		if err != nil {
 			return fmt.Errorf("completion error: %v", err)
 		}
+		fmt.Println("\nImproved Prompt\n----------------")
 		fmt.Println(resp.Choices[0].Message.Content)
 		return nil
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(askCmd)
+	rootCmd.AddCommand(improvePromptCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// askCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// improvePromptCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	askCmd.Flags().BoolVar(&agentModeAsk, "agent", false, "Run this command in agent mode")
-	// add flag for agent url
+	// improvePromptCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
