@@ -14,7 +14,7 @@ import (
 // improvePromptCmd represents the improvePrompt command
 var improvePromptCmd = &cobra.Command{
 	Use:   "improvePrompt",
-	Short: "helps improve a prompt",
+	Short: "Improve a prompt",
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		p := args[0]
