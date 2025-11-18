@@ -25,8 +25,14 @@ var envCmd = &cobra.Command{
 			prompt = "You are a helpful assistant. Please respond to this question with a brief but informative answer: "
 		}
 
+		agentUrl, exists := os.LookupEnv("CHATCTL_AGENT_BASE_URL")
+		if !exists {
+			agentUrl = "http://localhost:8000/"
+		}
+
 		fmt.Printf("CHATCTL_OPENAI_MODEL=\"%s\"\n", model)
 		fmt.Printf("CHATCTL_OPENAI_SYSTEM_PROMPT=\"%s\"\n", prompt)
+		fmt.Printf("CHATCTL_AGENT_BASE_URL=\"%s\"\n", agentUrl)
 	},
 }
 

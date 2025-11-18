@@ -21,8 +21,17 @@ type AgentResponse struct {
 	Message string `json:"message"`
 }
 
+func GetAgentBaseUrl() string {
+	defaultUrl := "http://localhost:8000/"
+	url, exists := os.LookupEnv("CHATCTL_AGENT_BASE_URL")
+	if !exists {
+		return defaultUrl
+	}
+	return url
+}
+
 func InitAgent(model string) (*AgentResponse, error) {
-	url := os.Getenv("CHATCTL_AGENT_BASE_URL")
+	url := GetAgentBaseUrl()
 
 	if !strings.HasSuffix(url, "/") {
 		url += "/"
@@ -50,7 +59,7 @@ func InitAgent(model string) (*AgentResponse, error) {
 }
 
 func CallAgent(query string) (*ExplainResponse, error) {
-	url := os.Getenv("CHATCTL_AGENT_BASE_URL")
+	url := GetAgentBaseUrl()
 	// add trailing slash if not present
 	if !strings.HasSuffix(url, "/") {
 		url += "/"

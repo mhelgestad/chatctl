@@ -11,8 +11,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var agentModeAsk bool
-
 // askCmd represents the ask command
 var askCmd = &cobra.Command{
 	Use:   "ask [question]",
@@ -20,26 +18,6 @@ var askCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		q := args[0]
-
-		if agentModeAsk {
-			agentResponse, err := common.CallAgent(q)
-			if err != nil {
-				return fmt.Errorf("agent error: %s", err)
-			}
-			fmt.Println("Topic\n-------")
-			fmt.Println(agentResponse.Topic)
-			fmt.Println("\nSummary\n-------")
-			fmt.Println(agentResponse.Summary)
-			fmt.Println("\nSources\n-------")
-			for _, source := range agentResponse.Sources {
-				fmt.Println("-", source)
-			}
-			fmt.Println("\nTools Used\n-------")
-			for _, tool := range agentResponse.ToolsUsed {
-				fmt.Println("-", tool)
-			}
-			return nil
-		}
 
 		client := common.GetOpenAIClient()
 		chatMessages := []openai.ChatCompletionMessage{
@@ -80,6 +58,5 @@ func init() {
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	askCmd.Flags().BoolVar(&agentModeAsk, "agent", false, "Run this command in agent mode")
 	// add flag for agent url
 }
