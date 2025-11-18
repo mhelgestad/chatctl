@@ -40,7 +40,7 @@ func InitAgent(model string) (*AgentResponse, error) {
 	payload := strings.NewReader(`{"model":"` + model + `"}`)
 	req, _ := http.NewRequest("POST", url, payload)
 	req.Header.Add("Content-Type", "application/json")
-	req.Header.Add("Auhthorization", "Bearer "+os.Getenv("CHATCTL_OPEN_API_KEY"))
+	req.Header.Add("Authorization", "Bearer "+os.Getenv("CHATCTL_OPEN_API_KEY"))
 
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
