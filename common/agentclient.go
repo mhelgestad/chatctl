@@ -21,6 +21,11 @@ type AgentResponse struct {
 	Message string `json:"message"`
 }
 
+type EmbeddingResponse struct {
+	Embedding []any  `json:"embedding"`
+	Error     string `json:"error"`
+}
+
 func GetAgentBaseUrl() string {
 	defaultUrl := "http://localhost:8000/"
 	url, exists := os.LookupEnv("CHATCTL_AGENT_BASE_URL")
@@ -28,6 +33,32 @@ func GetAgentBaseUrl() string {
 		return defaultUrl
 	}
 	return url
+}
+
+func GenerateEmbedding(model string, text string) (*EmbeddingResponse, error) {
+	url := GetAgentBaseUrl()
+
+	if !strings.HasSuffix(url, "/") {
+		url += "/"
+	}
+	url += "embedding"
+	payload := strings.NewReader(`{"text":"` + text + `","model":"` + model + `"}`)
+	req, _ := http.NewRequest("POST", url, payload)
+	req.Header.Add("Content-Type", "application/json")
+
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("error calling embedding endpoint: %s", err)
+	}
+	defer res.Body.Close()
+	body, _ := io.ReadAll(res.Body)
+
+	var response EmbeddingResponse
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		return nil, fmt.Errorf("error parsing init response: %s", err)
+	}
+	return &response, nil
 }
 
 func InitAgent(model string) (*AgentResponse, error) {
@@ -60,7 +91,6 @@ func InitAgent(model string) (*AgentResponse, error) {
 
 func CallAgent(query string) (*ExplainResponse, error) {
 	url := GetAgentBaseUrl()
-	// add trailing slash if not present
 	if !strings.HasSuffix(url, "/") {
 		url += "/"
 	}
