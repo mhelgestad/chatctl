@@ -43,11 +43,23 @@ var askCmd = &cobra.Command{
 			return fmt.Errorf("completion error: %v", err)
 		}
 		fmt.Println(resp.Choices[0].Message.Content)
+		stats, err := cmd.Flags().GetBool("stats")
+		if err != nil {
+			return err
+		}
+		if stats {
+			fmt.Println("\n----- STATS -----")
+			fmt.Printf("Prompt Tokens: %d\n", resp.Usage.PromptTokens)
+			fmt.Printf("Completion Tokens: %d\n", resp.Usage.CompletionTokens)
+			fmt.Printf("Total Tokens: %d\n", resp.Usage.TotalTokens)
+			fmt.Printf("Reasoning Tokens: %d\n", resp.Usage.CompletionTokensDetails.ReasoningTokens)
+		}
 		return nil
 	},
 }
 
 func init() {
+	askCmd.Flags().Bool("stats", false, "show token stats")
 	rootCmd.AddCommand(askCmd)
 
 	// Here you will define your flags and configuration settings.

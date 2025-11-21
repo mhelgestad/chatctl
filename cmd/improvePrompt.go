@@ -5,6 +5,7 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/mhelgestad/chatctl/common"
 	"github.com/sashabaranov/go-openai"
@@ -19,6 +20,11 @@ var improvePromptCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		p := args[0]
 
+		enhancePrompt, exists := os.LookupEnv("CHATCTL_ENHANCE_PROMPT")
+		if !exists {
+			enhancePrompt = "I'm an expert prompt engineer. Improve the following prompt to be more effective and precise, and only provide the prompt in the output. Limit the enhanced prompt to three sentences:"
+		}
+
 		fmt.Println("Original Prompt\n----------------")
 		fmt.Println(p)
 
@@ -26,7 +32,7 @@ var improvePromptCmd = &cobra.Command{
 		chatMessages := []openai.ChatCompletionMessage{
 			{
 				Role:    openai.ChatMessageRoleSystem,
-				Content: "Im an expert prompt engineer. Improve the following prompt to be more effective and precise, and only provide the prompt in the output:",
+				Content: enhancePrompt,
 			},
 			{
 				Role:    openai.ChatMessageRoleUser,

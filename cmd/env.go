@@ -30,9 +30,23 @@ var envCmd = &cobra.Command{
 			agentUrl = "http://localhost:8000/"
 		}
 
+		enhancePrompt, exists := os.LookupEnv("CHATCTL_ENHANCE_PROMPT")
+		if !exists {
+			enhancePrompt = "I'm an expert prompt engineer. Improve the following prompt to be more effective and precise, and only provide the prompt in the output. Limit the enhanced prompt to three sentences:"
+		}
+
+		openaiKey, exists := os.LookupEnv("CHATCTL_OPEN_API_KEY")
+		if !exists {
+			openaiKey = "NOT_SET"
+		} else {
+			openaiKey = "******"
+		}
+
 		fmt.Printf("CHATCTL_OPENAI_MODEL=\"%s\"\n", model)
 		fmt.Printf("CHATCTL_OPENAI_SYSTEM_PROMPT=\"%s\"\n", prompt)
 		fmt.Printf("CHATCTL_AGENT_BASE_URL=\"%s\"\n", agentUrl)
+		fmt.Printf("CHATCTL_ENHANCE_PROMPT=\"%s\"\n", enhancePrompt)
+		fmt.Printf("CHATCTL_OPEN_API_KEY=\"%s\"\n", openaiKey)
 	},
 }
 
