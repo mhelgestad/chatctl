@@ -1,6 +1,7 @@
 package common
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -9,16 +10,26 @@ import (
 	"strings"
 )
 
+type ExplainRequest struct {
+	Text string `json:"text"`
+}
+
 type ExplainResponse struct {
 	Topic      string   `json:"topic"`
 	Summary    string   `json:"summary"`
 	Suggestion string   `json:"suggestion"`
 	Sources    []string `json:"sources"`
 	ToolsUsed  []string `json:"tools_used"`
+	Error      *string  `json:"error"`
 }
 
 type AgentResponse struct {
 	Message string `json:"message"`
+}
+
+type EmbeddingRequest struct {
+	Model string `json:"model"`
+	Text  string `json:"text"`
 }
 
 type EmbeddingResponse struct {
@@ -42,8 +53,13 @@ func GenerateEmbedding(model string, text string) (*EmbeddingResponse, error) {
 		url += "/"
 	}
 	url += "embedding"
-	payload := strings.NewReader(`{"text":"` + text + `","model":"` + model + `"}`)
-	req, _ := http.NewRequest("POST", url, payload)
+	embeddingRequest := EmbeddingRequest{Text: text, Model: model}
+	data, err := json.Marshal(embeddingRequest)
+	if err != nil {
+		return nil, err
+	}
+
+	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(data))
 	req.Header.Add("Content-Type", "application/json")
 
 	res, err := http.DefaultClient.Do(req)
@@ -95,9 +111,13 @@ func CallAgent(query string) (*ExplainResponse, error) {
 		url += "/"
 	}
 	url += "explain"
-	payload := strings.NewReader(`{"text":"` + query + `"}`)
+	explainRequest := ExplainRequest{Text: query}
+	data, err := json.Marshal(explainRequest)
+	if err != nil {
+		return nil, err
+	}
 
-	req, _ := http.NewRequest("POST", url, payload)
+	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(data))
 	req.Header.Add("Content-Type", "application/json")
 
 	res, err := http.DefaultClient.Do(req)

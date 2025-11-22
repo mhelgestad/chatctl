@@ -4,6 +4,7 @@ Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"bufio"
 	"fmt"
 	"io"
 	"os"
@@ -21,17 +22,29 @@ var explainCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var q string
 		if len(args) == 0 {
-			data, err := io.ReadAll(os.Stdin)
-			if err != nil {
-				panic(err)
+			var sb strings.Builder
+			reader := bufio.NewReader(os.Stdin)
+			for {
+				line, err := reader.ReadString('\n')
+				if err == io.EOF {
+					break
+				}
+				if err != nil {
+					return fmt.Errorf("failed to read stdin: %w", err)
+				}
+				sb.WriteString(line)
 			}
-			q = strings.TrimSpace(string(data))
+			q = strings.TrimSpace(sb.String())
 		} else {
 			q = args[0]
 		}
+		fmt.Println(q + "\n")
 		agentResponse, err := common.CallAgent(q)
 		if err != nil {
 			return fmt.Errorf("explain error: %s", err)
+		}
+		if agentResponse.Error != nil {
+			return fmt.Errorf("explain error: %s", *agentResponse.Error)
 		}
 		fmt.Println("Topic\n-------")
 		fmt.Println(agentResponse.Topic)

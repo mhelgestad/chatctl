@@ -30,7 +30,6 @@ var embeddingCmd = &cobra.Command{
 			text = args[0]
 		}
 		model, err := cmd.Flags().GetString("model")
-		fmt.Println(model)
 		if model != "all-MiniLM-L6-v2" && model != "all-MiniLM-L12-v2" && model != "all-mpnet-base-v2" {
 			fmt.Println("Model must be one of ['all-MiniLM-L6-v2', 'all-MiniLM-L12-v2', 'all-mpnet-base-v2']")
 			return nil
