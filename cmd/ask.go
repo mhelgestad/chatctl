@@ -5,6 +5,9 @@ package cmd
 
 import (
 	"fmt"
+	"io"
+	"os"
+	"strings"
 
 	"github.com/mhelgestad/chatctl/common"
 	"github.com/sashabaranov/go-openai"
@@ -15,9 +18,18 @@ import (
 var askCmd = &cobra.Command{
 	Use:   "ask [question]",
 	Short: "Ask your question",
-	Args:  cobra.ExactArgs(1),
+	Args:  cobra.MaximumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		q := args[0]
+		var q string
+		if len(args) == 0 {
+			data, err := io.ReadAll(os.Stdin)
+			if err != nil {
+				panic(err)
+			}
+			q = strings.TrimSpace(string(data))
+		} else {
+			q = args[0]
+		}
 
 		client := common.GetOpenAIClient()
 		chatMessages := []openai.ChatCompletionMessage{

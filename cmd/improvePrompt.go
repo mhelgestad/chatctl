@@ -5,7 +5,9 @@ package cmd
 
 import (
 	"fmt"
+	"io"
 	"os"
+	"strings"
 
 	"github.com/mhelgestad/chatctl/common"
 	"github.com/sashabaranov/go-openai"
@@ -16,9 +18,18 @@ import (
 var improvePromptCmd = &cobra.Command{
 	Use:   "improvePrompt",
 	Short: "Improve a prompt",
-	Args:  cobra.ExactArgs(1),
+	Args:  cobra.MaximumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		p := args[0]
+		var p string
+		if len(args) == 0 {
+			data, err := io.ReadAll(os.Stdin)
+			if err != nil {
+				panic(err)
+			}
+			p = strings.TrimSpace(string(data))
+		} else {
+			p = args[0]
+		}
 
 		enhancePrompt, exists := os.LookupEnv("CHATCTL_ENHANCE_PROMPT")
 		if !exists {

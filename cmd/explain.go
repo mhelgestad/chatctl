@@ -5,6 +5,9 @@ package cmd
 
 import (
 	"fmt"
+	"io"
+	"os"
+	"strings"
 
 	"github.com/mhelgestad/chatctl/common"
 	"github.com/spf13/cobra"
@@ -14,9 +17,18 @@ import (
 var explainCmd = &cobra.Command{
 	Use:   "explain",
 	Short: "Explain code or command errors",
-	Args:  cobra.ExactArgs(1),
+	Args:  cobra.MaximumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		q := args[0]
+		var q string
+		if len(args) == 0 {
+			data, err := io.ReadAll(os.Stdin)
+			if err != nil {
+				panic(err)
+			}
+			q = strings.TrimSpace(string(data))
+		} else {
+			q = args[0]
+		}
 		agentResponse, err := common.CallAgent(q)
 		if err != nil {
 			return fmt.Errorf("explain error: %s", err)

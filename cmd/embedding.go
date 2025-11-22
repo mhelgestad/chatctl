@@ -5,6 +5,9 @@ package cmd
 
 import (
 	"fmt"
+	"io"
+	"os"
+	"strings"
 
 	"github.com/mhelgestad/chatctl/common"
 	"github.com/spf13/cobra"
@@ -14,9 +17,18 @@ import (
 var embeddingCmd = &cobra.Command{
 	Use:   "embedding",
 	Short: "generate an embedding for some text",
-	Args:  cobra.ExactArgs(1),
+	Args:  cobra.MaximumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		text := args[0]
+		var text string
+		if len(args) == 0 {
+			data, err := io.ReadAll(os.Stdin)
+			if err != nil {
+				panic(err)
+			}
+			text = strings.TrimSpace(string(data))
+		} else {
+			text = args[0]
+		}
 		model, err := cmd.Flags().GetString("model")
 		fmt.Println(model)
 		if model != "all-MiniLM-L6-v2" && model != "all-MiniLM-L12-v2" && model != "all-mpnet-base-v2" {
